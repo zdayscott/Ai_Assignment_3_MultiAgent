@@ -70,13 +70,23 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
+        score = successorGameState.getScore()
         #check if win
         if successorGameState.isWin():
             return float("inf")
+        if successorGameState.isLose():
+            score = -(float("inf"))
         #Find ghost
         ghostPos = successorGameState.getGhostPosition(1)
         #Set a base score from distance from ghost, Farther = best, Close = worst
-        score = util.manhattanDistance(ghostPos, newPos) + successorGameState.getScore()
+        ghostDist = 0;
+        ghostDist += util.manhattanDistance(ghostPos, newPos)
+        if(ghostDist <= 1):
+            return -(float("inf"))
+        if(ghostDist < 5):
+            score += ghostDist * 5
+        else:
+            score += ghostDist
         #Find closest food
         foodList = newFood.asList()
 
@@ -85,12 +95,13 @@ class ReflexAgent(Agent):
         for food in foodList:
             if(manhattanDistance(newPos,food) < closestFood):
                 closestFood = manhattanDistance(newPos, food)
-
+                f = food
+        if(closestFood <= manhattanDistance(currentGameState.getPacmanPosition(), f)):
+            score += 50
         score -= closestFood
         #If this move collects a food add to score
         if(currentGameState.getNumFood() > successorGameState.getNumFood()):
             score += 50
-        
         return score
 
 def scoreEvaluationFunction(currentGameState):
@@ -146,23 +157,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        print self.depth
+        #TESTINGprint self.depth
 
         #returns the value best suited for pacman
         def maxValue(state, depth, ghosts):
             #test prints
-            print depth
-            print "Pac"
+            if depth == self.depth:
+                depth -= 1
+            #TESTINGprint depth
+            #TESTINGprint "Pac"
             #if depth is 0 return estimated value
             if state.isWin() or state.isLose() or depth == 0:
-                print ("Pac finish")
+                #TESTINGprint ("Pac finish")
                 return self.evaluationFunction(state)
 
             v = -(float("inf"))
-            moves = gameState.getLegalActions(0)
+            moves = state.getLegalActions(0)
 
             for move in moves:
-                next = gameState.generateSuccessor(0, move)
+                next = state.generateSuccessor(0, move)
                 v = max(v, minValue(next, depth, 1, ghosts))
 
             return v
@@ -170,13 +183,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         #returns the value worst suited for pacman iterated over all ghost agents
         def minValue(state, depth, ghostindex, ghosts):
             #test prints
-            print depth
-            print "Ghost"
+            #TESTINGprint depth
+            #TESTINGprint "Ghost"
             #if depth is 0 return estimated value
             if state.isWin() or state.isLose() or depth == 0:
-                print("Ghost finish")
+                #TESTINGprint("Ghost finish")
                 return self.evaluationFunction(state)
-            moves = gameState.getLegalActions(ghostindex)
+            moves = state.getLegalActions(ghostindex)
             #Initialize the value variable
             v = float("inf")
 
@@ -185,12 +198,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 #iterate over all valid moves
                 for move in moves:
                     #increase depth by 1 level (indexed by decreasing to zero)
-                    v = min(v, maxValue(gameState.generateSuccessor(ghostindex, move), depth - 1, ghosts))
+                    v = min(v, maxValue(state.generateSuccessor(ghostindex, move), depth - 1, ghosts))
             #if not last ghost
             else:
                 #iterate over all valid moves
                 for move in moves:
-                    v = min(v, minValue(gameState.generateSuccessor(ghostindex, move), depth, ghostindex + 1, ghosts))
+                    v = min(v, minValue(state.generateSuccessor(ghostindex, move), depth, ghostindex + 1, ghosts))
 
             return v
 
@@ -205,7 +218,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         bestvalue = -(float("inf"))
         for action in pactions:
             next = gameState.generateSuccessor(0, action)
-            v = minValue(next, self.depth+1, 1, totalGhosts)
+            v = minValue(next, self.depth, 1, totalGhosts)
             if bestvalue < v:
                 bestvalue = v
                 bestmove = action
