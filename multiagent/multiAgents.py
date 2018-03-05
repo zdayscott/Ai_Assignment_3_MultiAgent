@@ -238,6 +238,76 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+
+        def maxValue(state, depth, alpha, beta, ghosts):
+            #print depth
+            #if depth == self.depth:
+             #   depth -= 1
+
+            if state.isWin() or state.isLose() or depth == 0:
+                return self.evaluationFunction(state)
+
+            v = -(float("inf"))
+            moves = state.getLegalActions(0)
+
+            for move in moves:
+                v = max(v, minValue(state.generateSuccessor(0, move), depth, alpha, beta, 1, ghosts))
+                if v >= beta:
+                    return v
+                print alpha
+                alpha = max(alpha, v)
+            return v
+
+        def minValue(state, depth, alpha, beta, ghostindex, ghosts):
+            #print depth
+            #print state.isWin()
+            #print state.isLose()
+            if state.isWin() or state.isLose() or depth == 0:
+                return self.evaluationFunction(state)
+            v = float("inf")
+            moves = state.getLegalActions(ghostindex)
+            if ghostindex == ghosts:
+                for move in moves:
+                    v = min(v, maxValue(state.generateSuccessor(ghostindex, move), depth - 1, alpha, beta, ghosts))
+                    if v <= alpha:
+                        return v
+                    print beta
+                    beta = min(beta, v)
+            elif ghostindex < ghosts:
+                for move in moves:
+                    v = min(v, minValue(state.generateSuccessor(ghostindex, move), depth, alpha, beta, ghostindex + 1, ghosts))
+                    if v <= alpha:
+                        return v
+                    print beta
+                    beta = min(beta, v)
+
+            return v
+
+        #Establish Agents and Legal Actions available to Pacman
+        totalGhosts = gameState.getNumAgents() - 1
+        pactions = gameState.getLegalActions(0)
+
+        #print self.depth
+        #print totalGhosts
+
+        #Generate Action Tree
+        bestmove = Directions.STOP
+        bestvalue = -(float("inf"))
+        alpha = -(float("inf"))
+        beta = float("inf")
+
+        for action in pactions:
+            next = gameState.generateSuccessor(0, action)
+            v = minValue(next, self.depth, alpha, beta, 1, totalGhosts)
+            if bestvalue < v:
+                bestvalue = v
+                bestmove = action
+
+        return bestmove
+
+
+
+
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
