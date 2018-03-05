@@ -334,7 +334,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         def expetiVal(state, depth, ghostindex, ghosts):
             #check end cases
-            if state.isWin() or state.isLose() or depth == 0
+            if state.isWin() or state.isLose() or depth == 0:
                 return self.evaluationFunction(state)
 
             expval = float(0)
@@ -343,9 +343,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
             for move in moves:
                 if ghostindex == ghosts:
-                    expval += maxVal(self.generateSuccessor(state, move),depth - 1)
+                    expval += maxVal(state.generateSuccessor(ghostindex, move),depth - 1, ghosts)
                 else:
-                    expval += expetiVal(self.generateSuccessor(ghostindex), depth, ghostindex + 1, ghosts)
+                    expval += expetiVal(state.generateSuccessor(ghostindex, move), depth, ghostindex + 1, ghosts)
 
 
             return expval / (len(moves))
@@ -353,7 +353,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         def maxVal(state, depth, ghosts):
             #check end state
-            if state.isWin() or state.isLose() or depth == 0
+            if state.isWin() or state.isLose() or depth == 0:
                 return self.evaluationFunction(state)
 
             moves = state.getLegalActions(0)
@@ -361,7 +361,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             v = -(float("inf"))
 
             for move in moves:
-                v = max(v, expetiVal(self.generateSuccessor(state,move), depth, 1, ghosts))
+                v = max(v, expetiVal(state.generateSuccessor(0,move), depth, 1, ghosts))
 
 
             return v
