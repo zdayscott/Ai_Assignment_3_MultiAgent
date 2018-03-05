@@ -1,3 +1,9 @@
+#1 Zachary Day-Scott
+#2 108975236
+#3 3/4/18
+
+
+
 # multiAgents.py
 # --------------
 # Licensing Information: Please do not distribute or publish solutions to this
