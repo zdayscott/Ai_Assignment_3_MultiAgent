@@ -402,7 +402,51 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+
+
+    score = currentGameState.getScore()
+    # check if win
+    if currentGameState.isWin():
+        return float("inf")
+    if currentGameState.isLose():
+        score = -(float("inf"))
+    # Find ghost
+    ghostPos = currentGameState.getGhostPosition(1)
+    # Set a base score from distance from ghost, Farther = best, Close = worst
+    ghostDist = 0;
+    ghostDist += util.manhattanDistance(ghostPos, newPos)
+    if (ghostDist <= 1):
+        return -(float("inf"))
+    if (ghostDist < 5):
+        score += ghostDist * 5
+    else:
+        score += ghostDist
+    # Find closest food
+    foodList = newFood.asList()
+
+    closestFood = 1000
+
+    for food in foodList:
+        if (manhattanDistance(newPos, food) < closestFood):
+            closestFood = manhattanDistance(newPos, food)
+            f = food
+    if (closestFood <= manhattanDistance(currentGameState.getPacmanPosition(), f)):
+        score += 50
+    score -= closestFood
+    if (len(foodList) < 2 and closestFood < 2):
+        score += 50
+    # If this move collects a food add to score
+    #if (currentGameState.getNumFood() > currentGameState.getNumFood()):
+        #score += 50
+    return score
+    #util.raiseNotDefined()
 
 # Abbreviation
 better = betterEvaluationFunction
